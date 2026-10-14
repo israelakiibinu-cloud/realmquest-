@@ -10,10 +10,52 @@
 <body>
   <header class="topbar">
     <div class="brand"><span class="brand-mark">✦</span><div><strong>REALMQUEST</strong><small>Chronicles of the Rift</small></div></div>
-    <div class="top-actions"><span class="online-dot"></span><span>Solo Adventure</span><button id="saveBtn" class="small-btn">Save Game</button></div>
+    <div class="top-actions"><span class="online-dot"></span><span id="accountStatus">Guest Mode</span><button id="accountBtn" class="small-btn">Login / Sign up</button><button id="saveBtn" class="small-btn">Save Game</button></div>
   </header>
 
   <main class="layout">
+    <section class="panel account-panel" id="accountPanel">
+      <div class="section-heading"><div><p class="eyebrow">YOUR ADVENTURER</p><h2>Create Your Avatar & Account</h2></div><button id="closeAccountBtn" class="small-btn">Close</button></div>
+      <p class="exp-desc">Choose your hero's look. Avatar settings save on this device. Online login activates after Firebase setup (instructions in README).</p>
+      <div class="account-grid"><div class="avatar-preview" id="avatarPreview">🧙</div><div class="avatar-options">
+        <label>Character name<input id="avatarName" maxlength="18" placeholder="e.g. RiftWalker"></label>
+        <label>Choose avatar<select id="avatarEmoji"><option>🧙</option><option>🧝</option><option>🧛</option><option>🧟</option><option>🧑‍🚀</option><option>🦸</option><option>🥷</option><option>🧚</option><option>🐲</option><option>👑</option></select></label>
+        <label>Accent aura<select id="avatarAura"><option value="violet">Arcane Violet</option><option value="gold">Royal Gold</option><option value="blue">Frost Blue</option><option value="green">Forest Green</option><option value="red">Rift Crimson</option></select></label><button id="saveAvatarBtn" class="primary-btn">Save Avatar</button>
+      </div></div>
+      <div class="character-builder">
+        <h3>Appearance Studio</h3>
+        <div class="builder-grid">
+          <label>Hair style<select id="hairStyle"><option>Flowing</option><option>Spiky</option><option>Short</option><option>Braided</option><option>Hooded</option></select></label>
+          <label>Face<select id="faceStyle"><option>Determined</option><option>Smiling</option><option>Mysterious</option><option>Scarred</option></select></label>
+          <label>Outfit<select id="outfitStyle"><option>Traveler's Coat</option><option>Shadow Armor</option><option>Royal Robes</option><option>Dragon Scale</option><option>Forest Ranger</option></select></label>
+          <label>Weapon style<select id="weaponStyle"><option>Rune Sword</option><option>Arcane Staff</option><option>Dual Daggers</option><option>Spirit Orb</option><option>Dragon Blade</option></select></label>
+        </div>
+        <p class="appearance-summary" id="appearanceSummary">Flowing hair · Determined face · Traveler's Coat · Rune Sword</p>
+      </div>
+      <div class="character-builder">
+        <h3>Choose Your Race</h3>
+        <div class="race-options">
+          <button type="button" class="race-option selected" data-race="Human"><span>🧑</span><strong>Human</strong><small>Balanced · +2 Vitality</small></button>
+          <button type="button" class="race-option" data-race="Elf"><span>🧝</span><strong>Elf</strong><small>Arcane · +3 Intelligence</small></button>
+          <button type="button" class="race-option" data-race="Demon"><span>😈</span><strong>Demon</strong><small>Power · +3 Strength</small></button>
+          <button type="button" class="race-option" data-race="Dragonkin"><span>🐉</span><strong>Dragonkin</strong><small>Resilient · +3 Vitality</small></button>
+          <button type="button" class="race-option" data-race="Dwarf"><span>🧔</span><strong>Dwarf</strong><small>Fortitude · +2 Vitality, +1 Strength</small></button>
+        </div>
+      </div>
+      <div class="character-builder">
+        <h3>Character Attributes</h3>
+        <p class="exp-desc">Spend points earned when you level up. Race bonuses are included in the totals.</p>
+        <div class="attribute-list">
+          <div class="attribute-row"><span>💪 Strength <small>Physical damage</small></span><strong id="strengthValue">7</strong><button type="button" class="stat-add" data-stat="strength">+</button></div>
+          <div class="attribute-row"><span>🔮 Intelligence <small>Skill power & mana</small></span><strong id="intelligenceValue">7</strong><button type="button" class="stat-add" data-stat="intelligence">+</button></div>
+          <div class="attribute-row"><span>⚡ Agility <small>Speed & critical chance</small></span><strong id="agilityValue">7</strong><button type="button" class="stat-add" data-stat="agility">+</button></div>
+          <div class="attribute-row"><span>❤️ Vitality <small>Maximum health</small></span><strong id="vitalityValue">7</strong><button type="button" class="stat-add" data-stat="vitality">+</button></div>
+          <div class="attribute-row"><span>🍀 Luck <small>Loot chance</small></span><strong id="luckValue">7</strong><button type="button" class="stat-add" data-stat="luck">+</button></div>
+        </div>
+        <p class="points-left">Unspent stat points: <strong id="statPoints">3</strong></p>
+      </div>
+      <div class="auth-grid"><label>Email address<input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com"></label><label>Password<input id="authPassword" type="password" minlength="6" autocomplete="current-password" placeholder="At least 6 characters"></label><div class="auth-buttons"><button id="signupBtn" class="primary-btn">Create Account</button><button id="loginBtn" class="secondary-btn">Login</button><button id="logoutBtn" class="secondary-btn">Logout</button></div><p id="authMessage" class="class-note">Online account login needs your own free Firebase project setup.</p></div>
+    </section>
     <section class="hero panel">
       <div class="hero-copy">
         <p class="eyebrow">THE FRONTIER AWAITS</p>
@@ -29,6 +71,7 @@
       <article class="stat panel"><span class="stat-icon">✧</span><div><small>EXPERIENCE</small><strong id="xpText">0 / 100 XP</strong><div class="bar"><span id="xpBar" class="xp-fill"></span></div></div></article>
       <article class="stat panel"><span class="stat-icon">◈</span><div><small>GOLD</small><strong id="goldText">25</strong><small class="muted">Guild coins</small></div></article>
       <article class="stat panel"><span class="stat-icon">⚔</span><div><small>LEVEL</small><strong id="levelText">1</strong><small class="muted" id="rankText">Novice Adventurer</small></div></article>
+      <article class="stat panel"><span class="stat-icon">💧</span><div><small>MANA</small><strong id="manaText">50 / 50</strong><div class="bar"><span id="manaBar" class="mana-fill"></span></div></div></article>
     </section>
 
     <div class="content-grid">
@@ -48,7 +91,7 @@
 
       <aside class="side-column">
         <section class="panel quest-panel"><div class="section-heading"><div><p class="eyebrow">GUILD NOTICE</p><h2>Beginner's Trial</h2></div><span class="quest-icon">📜</span></div><p>Defeat 3 creatures in the Whispering Wilds to prove your worth.</p><div class="quest-progress"><div><span>Progress</span><strong id="questText">0 / 3</strong></div><div class="bar"><span id="questBar" class="quest-fill"></span></div></div><div id="questReward" class="reward">Reward: <strong>60 gold</strong> + <strong>80 XP</strong></div></section>
-        <section class="panel powers-panel"><p class="eyebrow">AWAKENED TALENT</p><h2>Arcane Pulse</h2><div class="power-symbol">✧</div><p>A spark of ancient energy lives within you. Focus it to deal powerful damage.</p><div class="power-stats"><span>Damage <strong>18–28</strong></span><span>Cost <strong>10 HP</strong></span></div></section>
+        <section class="panel powers-panel"><p class="eyebrow">AWAKENED TALENT</p><h2>Arcane Pulse</h2><div class="power-symbol">✧</div><p>A spark of ancient energy lives within you. Focus it to deal powerful damage.</p><div class="power-stats"><span>Damage <strong>18–28</strong></span><span>Cost <strong>10 MP</strong></span></div></section>
         <section class="panel class-panel"><div class="section-heading"><div><p class="eyebrow">CHOOSE YOUR PATH</p><h2>Adventurer Class</h2></div><span class="pill" id="classPill">Unchosen</span></div><p class="class-intro">Choose a combat style. You can change your class later as the game grows.</p><div class="class-options">
           <button class="class-option selected" data-class="Swordsman"><span>⚔️</span><strong>Swordsman</strong><small>Balanced physical attacks</small></button>
           <button class="class-option" data-class="Mage"><span>🔮</span><strong>Mage</strong><small>Stronger Arcane Pulse</small></button>
@@ -69,8 +112,10 @@
       <section class="panel expansion-panel"><p class="eyebrow">EQUIPMENT</p><h2>Inventory & Gear</h2><p class="exp-desc">Your current gear affects your adventure. Defeated monsters may drop useful items.</p><div class="gear-row"><span>⚔️</span><div><strong id="weaponName">Training Blade</strong><small>Weapon • Common</small></div><b id="weaponBonus">+0 ATK</b></div><div class="gear-row"><span>🛡️</span><div><strong id="armorName">Traveler's Tunic</strong><small>Armor • Common</small></div><b id="armorBonus">+0 DEF</b></div><div class="loot-box"><span>🎒</span><span><strong id="lootText">No new loot yet.</strong><small>Monster drops appear here.</small></span></div></section>
       <section class="panel expansion-panel"><p class="eyebrow">DUNGEON CHALLENGE</p><h2>Boss Encounter</h2><p class="exp-desc">When you're ready, challenge a boss with much more health and damage than normal creatures.</p><div class="boss-card"><span class="boss-art">🐉</span><div><strong id="bossName">Ashfang, Rift Drake</strong><small id="bossStatus">A dangerous presence stirs beyond the ruins.</small></div></div><button id="bossBtn" class="primary-btn boss-btn">⚔ Challenge Boss</button><p class="class-note">Recommended: Level 3 or higher.</p></section>
     </div>
-    <footer>REALMQUEST • A fantasy RPG prototype <span>Progress saves on this device when you tap Save Game.</span></footer>
+    <footer>REALMQUEST • A fantasy RPG prototype <span>Guest progress saves on this device. Online accounts require Firebase setup.</span></footer>
   </main>
+  <script src="character.js"></script>
+  <script type="module" src="auth.js"></script>
   <script src="game.js"></script>
 </body>
 </html>

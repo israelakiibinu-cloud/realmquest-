@@ -1,26 +1,17 @@
-# RealmQuest — Version 3 prototype
+# RealmQuest V5 — Character Creator
 
-A mobile-friendly single-player fantasy RPG website built with HTML, CSS, and JavaScript.
+## What's new
+- Avatar appearance studio: avatar emoji, aura colour, hairstyle, face, outfit and weapon style.
+- Playable races: Human, Elf, Demon, Dragonkin and Dwarf, each with attribute bonuses.
+- Strength, Intelligence, Agility, Vitality and Luck attributes, plus spendable points.
+- Mana-based Arcane Burst, login/auth scaffold and existing adventure features.
 
-## Included systems
-- Turn-based monster battles, health, XP, levels, gold, potions, and a beginner quest
-- Hunter ranks E through S
-- Five selectable classes with class-specific attack bonuses
-- Three explorable fantasy locations with increasing enemy difficulty
-- Awakening and class-evolution milestones
-- Equipment drops for weapons and armor
-- A boss challenge that unlocks at level 3
-- Local save-game support in the browser
+## Publish the update
+Upload every file in this `realmquest` folder to the root of your existing GitHub repository, replacing files with the same names. Add the new `character.js` file too. Wait for Render to redeploy.
 
-## Publish with GitHub + Render
-1. Create a GitHub repository named `realmquest`.
-2. Upload `index.html`, `style.css`, and `game.js` to its root.
-3. On Render, choose **New +** → **Static Site** and connect the repository.
-4. Leave the build command blank and set the publish directory to `.`.
-5. Create the site and use the public `onrender.com` address.
+## Notes
+Character appearance/race/attributes currently save in this browser using localStorage. Online authentication needs the Firebase configuration described in `auth.js`; these character attributes are not yet synchronised to a cloud database or other devices. Attribute totals show race bonuses; this prototype does not yet apply every attribute to battle calculations.
 
-Official guides:
-- https://render.com/docs/static-sites
-- https://docs.github.com/en/repositories/working-with-files/managing-files/adding-a-file-to-a-repository
 
-This is a prototype. Online accounts, multiplayer, server-side saving, and a complete open world would need additional development. Never put private API keys or passwords in the website code.
+## Mana rules
+Mage, Summoner, and Necromancer start with 100/100 MP. Swordsman and Assassin start with 50/50 MP. Choosing a mana-focused class restores MP to 100. Resting at camp restores both HP and MP.

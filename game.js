@@ -1,5 +1,5 @@
 const $ = id => document.getElementById(id);
-const state = {health:100,maxHealth:100,xp:0,level:1,gold:25,potions:2,defeated:0,monster:null,questComplete:false,playerClass:"Swordsman"};
+const state = {health:100,maxHealth:100,mana:50,maxMana:50,xp:0,level:1,gold:25,potions:2,defeated:0,monster:null,questComplete:false,playerClass:"Swordsman"};
 const monsters = [
   {name:"Wild Wolf",emoji:"🐺",hp:35,xp:25,gold:8,damage:8},
   {name:"Moss Goblin",emoji:"👺",hp:42,xp:30,gold:10,damage:10},
@@ -10,13 +10,14 @@ const monsters = [
 function log(message){const p=document.createElement("p");p.textContent="✦ "+message;$("log").prepend(p);}
 function render(){
   $("healthText").textContent=`${state.health} / ${state.maxHealth}`;$("healthBar").style.width=`${state.health/state.maxHealth*100}%`;
+  if($("manaText")){$("manaText").textContent=`${state.mana} / ${state.maxMana}`;$("manaBar").style.width=`${state.mana/state.maxMana*100}%`; }
   $("xpText").textContent=`${state.xp} / ${state.level*100} XP`;$("xpBar").style.width=`${state.xp/(state.level*100)*100}%`;
   $("goldText").textContent=state.gold;$("levelText").textContent=state.level;
   $("rankText").textContent=hunterRank();
   $("potionCount").textContent=state.potions;$("inventoryPotions").textContent=state.potions;$("inventoryGold").textContent=state.gold;
   $("questText").textContent=`${Math.min(state.defeated,3)} / 3`; $("classPill").textContent=state.playerClass; document.querySelectorAll(".class-option").forEach(b=>b.classList.toggle("selected",b.dataset.class===state.playerClass));$("questBar").style.width=`${Math.min(state.defeated/3,1)*100}%`;
   if(state.monster){$("monsterName").textContent=state.monster.name;$("monsterAvatar").textContent=state.monster.emoji;$("monsterHealth").textContent=`${state.monster.hp} / ${state.monster.maxHp} HP`;$("monsterBar").style.width=`${Math.max(0,state.monster.hp/state.monster.maxHp*100)}%`;}
-  $("attackBtn").disabled=!state.monster;$("powerBtn").disabled=!state.monster;$("potionBtn").disabled=state.potions<1||state.health===state.maxHealth;
+  $("attackBtn").disabled=!state.monster;$("powerBtn").disabled=!state.monster || state.mana<10;$("potionBtn").disabled=state.potions<1||state.health===state.maxHealth;
 }
 function hunterRank(){
   if(state.level>=10 || state.defeated>=20) return "S-Rank Hunter";
@@ -35,6 +36,7 @@ const classNotes = {
 };
 document.querySelectorAll(".class-option").forEach(button=>button.addEventListener("click",()=>{
   state.playerClass=button.dataset.class;
+  if(["Mage","Summoner","Necromancer"].includes(state.playerClass)){state.maxMana=100;state.mana=100;}else{state.maxMana=50;state.mana=Math.min(state.mana,state.maxMana);}
   $("classNote").textContent=classNotes[state.playerClass];
   log(`You chose the ${state.playerClass} class.`);
   render();
@@ -58,7 +60,7 @@ function winFight(){
   log(`Victory! +${m.xp} XP and +${m.gold} gold.`);
   $("combatBox").classList.add("hidden");$("scene").classList.remove("hidden");$("locationPill").textContent="Whispering Wilds";
   $("scene").querySelector("h3").textContent="The Wilds Grow Quiet";$("scene").querySelector("p").textContent="The creature has been defeated. Continue exploring to discover what else waits in the forest.";
-  if(state.xp>=state.level*100){state.xp-=state.level*100;state.level++;state.maxHealth+=15;state.health=Math.min(state.maxHealth,state.health+25);log(`LEVEL UP! You reached level ${state.level}. Maximum health increased.`);}
+  if(state.xp>=state.level*100){state.xp-=state.level*100;state.level++;state.maxHealth+=15;state.health=Math.min(state.maxHealth,state.health+25);state.maxMana+=10;state.mana=state.maxMana;log(`LEVEL UP! You reached level ${state.level}. Maximum health and mana increased.`);}
   if(state.defeated>=3&&!state.questComplete){state.questComplete=true;state.gold+=60;state.xp+=80;log("QUEST COMPLETE! The guild rewards you with 60 gold and 80 XP.");$("questReward").textContent="✓ Quest complete — reward claimed!";$("questReward").style.color="var(--green)";}
   render();
 }
@@ -68,14 +70,14 @@ $("attackBtn").addEventListener("click",()=>{if(!state.monster)return;let d=12+M
   if(state.playerClass==="Summoner") d+=4;
   if(state.playerClass==="Necromancer") d+=3;
   state.monster.hp-=d;log(`${state.playerClass} attack deals ${d} damage.`);if(state.monster.hp<=0)winFight();else{enemyTurn();render();}});
-$("powerBtn").addEventListener("click",()=>{if(!state.monster||state.health<=10)return;state.health-=10;let d=18+Math.floor(Math.random()*11);
+$("powerBtn").addEventListener("click",()=>{if(!state.monster||state.mana<10){log("Not enough mana! You need 10 MP.");return;}state.mana-=10;let d=18+Math.floor(Math.random()*11);
   if(state.playerClass==="Mage") d+=10;
   if(state.playerClass==="Necromancer") d+=5;
   state.monster.hp-=d;
   if(state.playerClass==="Necromancer") state.health=Math.min(state.maxHealth,state.health+5);
-  log(`${state.playerClass} uses Arcane Pulse for ${d} damage. You spend 10 health.`);if(state.monster.hp<=0)winFight();else{enemyTurn();render();}});
+  log(`${state.playerClass} uses Arcane Pulse for ${d} damage. You spend 10 mana.`);if(state.monster.hp<=0)winFight();else{enemyTurn();render();}});
 $("potionBtn").addEventListener("click",()=>{if(state.potions<1||state.health===state.maxHealth)return;state.potions--;const before=state.health;state.health=Math.min(state.maxHealth,state.health+35);log(`You drink a potion and recover ${state.health-before} health.`);if(state.monster)enemyTurn();render();});
-$("restBtn").addEventListener("click",()=>{state.health=state.maxHealth;state.monster=null;$("combatBox").classList.add("hidden");$("scene").classList.remove("hidden");$("scene").querySelector("h3").textContent="A Safe Moment at Camp";$("scene").querySelector("p").textContent="You rest by the guild's campfire and recover your strength. The wilds will be waiting when you are ready."; $("locationPill").textContent="Guild Outpost";log("You rest at camp and restore all health.");render();});
+$("restBtn").addEventListener("click",()=>{state.health=state.maxHealth;state.mana=state.maxMana;state.monster=null;$("combatBox").classList.add("hidden");$("scene").classList.remove("hidden");$("scene").querySelector("h3").textContent="A Safe Moment at Camp";$("scene").querySelector("p").textContent="You rest by the guild's campfire and recover your strength. The wilds will be waiting when you are ready."; $("locationPill").textContent="Guild Outpost";log("You rest at camp and restore all health and mana.");render();});
 $("saveBtn").addEventListener("click",()=>{localStorage.setItem("realmquest-save",JSON.stringify(state));log("Game saved on this device.");});
 function load(){try{const saved=localStorage.getItem("realmquest-save");if(saved){Object.assign(state,JSON.parse(saved));if(state.monster){state.monster=null;}if(state.questComplete){$("questReward").textContent="✓ Quest complete — reward claimed!";$("questReward").style.color="var(--green)";} $("classNote").textContent=classNotes[state.playerClass]||classNotes.Swordsman; log("Saved adventure loaded.");}}catch(e){}render();}
 load();
