@@ -30,10 +30,9 @@ if (ready) {
     });
   } catch (e) { message("Firebase setup issue. Check the config in auth.js."); }
 } else {
-  message("Avatar creation works now. To enable real login, add Firebase config in auth.js and enable Email/Password sign-in in Firebase Console.");
+  message("Guest play is ready. To enable real accounts, connect your Firebase web config and enable Email/Password sign-in.");
 }
-$("accountBtn").addEventListener("click", () => panel.classList.toggle("account-hidden"));
-$("closeAccountBtn").addEventListener("click", () => panel.classList.add("account-hidden"));
+$("closeAccountBtn").addEventListener("click", () => document.getElementById("introScreen").classList.remove("screen-hidden"));
 const savedAvatar = (() => { try { return JSON.parse(localStorage.getItem("realmquest-avatar") || "{}"); } catch { return {}; } })();
 if (savedAvatar.name) $("avatarName").value = savedAvatar.name;
 if (savedAvatar.emoji) $("avatarEmoji").value = savedAvatar.emoji;
@@ -53,13 +52,13 @@ $("saveAvatarBtn").addEventListener("click", () => {
   message("Avatar saved on this device" + (avatar.name ? " for " + avatar.name : "") + "!");
 });
 $("signupBtn").addEventListener("click", async () => {
-  if (!auth) { message("Login isn't active yet. Follow the Firebase setup in README.md, then add the config to auth.js."); return; }
+  if (!auth) { message("Online login is not configured yet. You can still play as a guest; see README.md to connect Firebase."); return; }
   const data = emailAndPassword(); if (!data) return;
   try { await createUserWithEmailAndPassword(auth, data.email, data.password); message("Account created and signed in!"); }
   catch (e) { message(e.message.replace("Firebase: ", "")); }
 });
 $("loginBtn").addEventListener("click", async () => {
-  if (!auth) { message("Login isn't active yet. Follow the Firebase setup in README.md, then add the config to auth.js."); return; }
+  if (!auth) { message("Online login is not configured yet. You can still play as a guest; see README.md to connect Firebase."); return; }
   const data = emailAndPassword(); if (!data) return;
   try { await signInWithEmailAndPassword(auth, data.email, data.password); message("Login successful!"); }
   catch (e) { message(e.message.replace("Firebase: ", "")); }

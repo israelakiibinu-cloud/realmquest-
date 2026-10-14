@@ -14,7 +14,16 @@
   </header>
 
   <main class="layout">
-    <section class="panel account-panel" id="accountPanel">
+    <section class="panel intro-screen" id="introScreen">
+      <div class="intro-art" aria-hidden="true">✦</div>
+      <p class="eyebrow">A NEW WORLD IS CALLING</p>
+      <h1>REALMQUEST<br><em>Chronicles of the Rift</em></h1>
+      <p class="intro-lead">Build your hero. Discover forgotten realms. Fight dangerous creatures. Write your own legend.</p>
+      <div class="intro-highlights"><span>⚔ Class-based combat</span><span>🧬 Five playable races</span><span>💧 Mana-powered skills</span></div>
+      <button id="beginBtn" class="primary-btn intro-cta">Begin Your Journey →</button>
+      <p class="intro-footnote">Your adventure can begin as a guest. Online accounts need Firebase setup.</p>
+    </section>
+    <section class="panel account-panel screen-hidden" id="accountPanel">
       <div class="section-heading"><div><p class="eyebrow">YOUR ADVENTURER</p><h2>Create Your Avatar & Account</h2></div><button id="closeAccountBtn" class="small-btn">Close</button></div>
       <p class="exp-desc">Choose your hero's look. Avatar settings save on this device. Online login activates after Firebase setup (instructions in README).</p>
       <div class="account-grid"><div class="avatar-preview" id="avatarPreview">🧙</div><div class="avatar-options">
@@ -54,8 +63,11 @@
         </div>
         <p class="points-left">Unspent stat points: <strong id="statPoints">3</strong></p>
       </div>
+      <div class="character-continue"><button id="continueGameBtn" class="primary-btn">Save Character & Enter Realm →</button><button id="backIntroBtn" class="secondary-btn">Back</button></div>
       <div class="auth-grid"><label>Email address<input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com"></label><label>Password<input id="authPassword" type="password" minlength="6" autocomplete="current-password" placeholder="At least 6 characters"></label><div class="auth-buttons"><button id="signupBtn" class="primary-btn">Create Account</button><button id="loginBtn" class="secondary-btn">Login</button><button id="logoutBtn" class="secondary-btn">Logout</button></div><p id="authMessage" class="class-note">Online account login needs your own free Firebase project setup.</p></div>
     </section>
+    <div id="gameScreen" class="screen-hidden">
+    <div class="game-nav"><button id="editCharacterBtn" class="secondary-btn">← Character / Account</button><span id="welcomePlayer">Your adventure begins</span></div>
     <section class="hero panel">
       <div class="hero-copy">
         <p class="eyebrow">THE FRONTIER AWAITS</p>
@@ -113,9 +125,11 @@
       <section class="panel expansion-panel"><p class="eyebrow">DUNGEON CHALLENGE</p><h2>Boss Encounter</h2><p class="exp-desc">When you're ready, challenge a boss with much more health and damage than normal creatures.</p><div class="boss-card"><span class="boss-art">🐉</span><div><strong id="bossName">Ashfang, Rift Drake</strong><small id="bossStatus">A dangerous presence stirs beyond the ruins.</small></div></div><button id="bossBtn" class="primary-btn boss-btn">⚔ Challenge Boss</button><p class="class-note">Recommended: Level 3 or higher.</p></section>
     </div>
     <footer>REALMQUEST • A fantasy RPG prototype <span>Guest progress saves on this device. Online accounts require Firebase setup.</span></footer>
+    </div>
   </main>
   <script src="character.js"></script>
   <script type="module" src="auth.js"></script>
   <script src="game.js"></script>
+  <script src="flow.js"></script>
 </body>
 </html>
