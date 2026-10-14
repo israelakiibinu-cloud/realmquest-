@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <title>RealmQuest — Fantasy RPG</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">✦</span><div><strong>REALMQUEST</strong><small>Chronicles of the Rift</small></div></div>
+    <div class="top-actions"><span class="online-dot"></span><span>Solo Adventure</span><button id="saveBtn" class="small-btn">Save Game</button></div>
+  </header>
+
+  <main class="layout">
+    <section class="hero panel">
+      <div class="hero-copy">
+        <p class="eyebrow">THE FRONTIER AWAITS</p>
+        <h1>Become the legend<br><em>the realms remember.</em></h1>
+        <p class="intro">Explore enchanted forests, battle monsters, discover ancient powers, and rise through the guild ranks.</p>
+        <div class="hero-buttons"><button id="exploreBtn" class="primary-btn">⚔ Explore the Wilds</button><button id="restBtn" class="secondary-btn">✚ Rest at Camp</button></div>
+      </div>
+      <div class="sigil" aria-hidden="true"><div class="sigil-ring">✦</div><span>RANK E</span></div>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat panel"><span class="stat-icon">♥</span><div><small>HEALTH</small><strong id="healthText">100 / 100</strong><div class="bar"><span id="healthBar" class="health-fill"></span></div></div></article>
+      <article class="stat panel"><span class="stat-icon">✧</span><div><small>EXPERIENCE</small><strong id="xpText">0 / 100 XP</strong><div class="bar"><span id="xpBar" class="xp-fill"></span></div></div></article>
+      <article class="stat panel"><span class="stat-icon">◈</span><div><small>GOLD</small><strong id="goldText">25</strong><small class="muted">Guild coins</small></div></article>
+      <article class="stat panel"><span class="stat-icon">⚔</span><div><small>LEVEL</small><strong id="levelText">1</strong><small class="muted" id="rankText">Novice Adventurer</small></div></article>
+    </section>
+
+    <div class="content-grid">
+      <section class="panel adventure-panel">
+        <div class="section-heading"><div><p class="eyebrow">YOUR JOURNEY</p><h2>Adventure Log</h2></div><span class="pill" id="locationPill">Guild Outpost</span></div>
+        <div id="scene" class="scene">
+          <div class="scene-art">🌲　🌙　🏔️</div>
+          <h3>The Whispering Wilds</h3>
+          <p>The trees stir with old magic. Something moves beyond the mist. Your first adventure is waiting.</p>
+        </div>
+        <div id="combatBox" class="combat-box hidden">
+          <div class="monster-row"><div class="monster-avatar" id="monsterAvatar">🐺</div><div class="monster-info"><small>HOSTILE CREATURE</small><h3 id="monsterName">Wild Wolf</h3><div class="bar"><span id="monsterBar" class="monster-fill"></span></div><small id="monsterHealth">35 / 35 HP</small></div></div>
+          <div class="combat-actions"><button id="attackBtn" class="primary-btn">⚔ Attack</button><button id="powerBtn" class="secondary-btn">✦ Arcane Burst</button><button id="potionBtn" class="secondary-btn">🧪 Potion (<span id="potionCount">2</span>)</button></div>
+        </div>
+        <div class="log-wrap"><h3>Recent Events</h3><div id="log" class="log"><p>✦ Your adventure begins. The guild has posted a beginner quest.</p></div></div>
+      </section>
+
+      <aside class="side-column">
+        <section class="panel quest-panel"><div class="section-heading"><div><p class="eyebrow">GUILD NOTICE</p><h2>Beginner's Trial</h2></div><span class="quest-icon">📜</span></div><p>Defeat 3 creatures in the Whispering Wilds to prove your worth.</p><div class="quest-progress"><div><span>Progress</span><strong id="questText">0 / 3</strong></div><div class="bar"><span id="questBar" class="quest-fill"></span></div></div><div id="questReward" class="reward">Reward: <strong>60 gold</strong> + <strong>80 XP</strong></div></section>
+        <section class="panel powers-panel"><p class="eyebrow">AWAKENED TALENT</p><h2>Arcane Pulse</h2><div class="power-symbol">✧</div><p>A spark of ancient energy lives within you. Focus it to deal powerful damage.</p><div class="power-stats"><span>Damage <strong>18–28</strong></span><span>Cost <strong>10 HP</strong></span></div></section>
+        <section class="panel class-panel"><div class="section-heading"><div><p class="eyebrow">CHOOSE YOUR PATH</p><h2>Adventurer Class</h2></div><span class="pill" id="classPill">Unchosen</span></div><p class="class-intro">Choose a combat style. You can change your class later as the game grows.</p><div class="class-options">
+          <button class="class-option selected" data-class="Swordsman"><span>⚔️</span><strong>Swordsman</strong><small>Balanced physical attacks</small></button>
+          <button class="class-option" data-class="Mage"><span>🔮</span><strong>Mage</strong><small>Stronger Arcane Pulse</small></button>
+          <button class="class-option" data-class="Assassin"><span>🗡️</span><strong>Assassin</strong><small>Quick, powerful strikes</small></button>
+          <button class="class-option" data-class="Summoner"><span>🐉</span><strong>Summoner</strong><small>Calls spectral allies</small></button>
+          <button class="class-option" data-class="Necromancer"><span>💀</span><strong>Necromancer</strong><small>Dark magic and draining power</small></button>
+        </div><p class="class-note" id="classNote">Swordsman: reliable damage with a blade.</p></section>
+        <section class="panel inventory-panel"><div class="section-heading"><h2>Inventory</h2><span class="pill">Starter Kit</span></div><div class="item"><span>🧪</span><div><strong>Healing Potion</strong><small>Restores 35 health</small></div><b id="inventoryPotions">2</b></div><div class="item"><span>🪙</span><div><strong>Guild Coins</strong><small>Spend them in future shops</small></div><b id="inventoryGold">25</b></div></section>
+      </aside>
+    </div>
+    <div class="expansion-grid">
+      <section class="panel expansion-panel"><p class="eyebrow">WORLD MAP</p><h2>Explore the Realms</h2><p class="exp-desc">Choose a location to explore. Dangerous areas may contain tougher monsters and better rewards.</p><div class="location-list">
+        <button class="location-option selected" data-location="Whispering Wilds" data-art="🌲　🌙　🏔️" data-desc="The trees stir with old magic. Beginner monsters roam beneath the mist.">🌲 <span><strong>Whispering Wilds</strong><small>Recommended for new hunters</small></span><b>E</b></button>
+        <button class="location-option" data-location="Crystal Caverns" data-art="💎　🪨　✨" data-desc="Glowing crystals light the cavern. Creatures here are tougher, but rewards are better.">💎 <span><strong>Crystal Caverns</strong><small>Stronger enemies • Better rewards</small></span><b>D</b></button>
+        <button class="location-option" data-location="Ancient Ruins" data-art="🏛️　🌌　🗿" data-desc="Forgotten magic lingers between broken pillars. Only prepared hunters should enter.">🏛️ <span><strong>Ancient Ruins</strong><small>Elite monsters • Rare loot chance</small></span><b>C</b></button>
+      </div><p class="class-note" id="locationNote">Selected: Whispering Wilds</p></section>
+      <section class="panel expansion-panel"><p class="eyebrow">POWER DEVELOPMENT</p><h2>Awakening Path</h2><p class="exp-desc">Your class grows stronger as you gain levels. This prototype includes simple class bonuses; deeper evolutions can be unlocked in future versions.</p><div class="evolution-card"><span class="evolution-icon">✦</span><div><strong id="evolutionTitle">Unawakened Talent</strong><small id="evolutionDesc">Reach level 3 to awaken your first talent.</small></div><span class="pill" id="evolutionStatus">Locked</span></div><div class="evolution-card"><span class="evolution-icon">✧</span><div><strong>Class Evolution</strong><small>Reach level 5 to unlock your next milestone.</small></div><span class="pill" id="classEvolutionStatus">Locked</span></div></section>
+      <section class="panel expansion-panel"><p class="eyebrow">EQUIPMENT</p><h2>Inventory & Gear</h2><p class="exp-desc">Your current gear affects your adventure. Defeated monsters may drop useful items.</p><div class="gear-row"><span>⚔️</span><div><strong id="weaponName">Training Blade</strong><small>Weapon • Common</small></div><b id="weaponBonus">+0 ATK</b></div><div class="gear-row"><span>🛡️</span><div><strong id="armorName">Traveler's Tunic</strong><small>Armor • Common</small></div><b id="armorBonus">+0 DEF</b></div><div class="loot-box"><span>🎒</span><span><strong id="lootText">No new loot yet.</strong><small>Monster drops appear here.</small></span></div></section>
+      <section class="panel expansion-panel"><p class="eyebrow">DUNGEON CHALLENGE</p><h2>Boss Encounter</h2><p class="exp-desc">When you're ready, challenge a boss with much more health and damage than normal creatures.</p><div class="boss-card"><span class="boss-art">🐉</span><div><strong id="bossName">Ashfang, Rift Drake</strong><small id="bossStatus">A dangerous presence stirs beyond the ruins.</small></div></div><button id="bossBtn" class="primary-btn boss-btn">⚔ Challenge Boss</button><p class="class-note">Recommended: Level 3 or higher.</p></section>
+    </div>
+    <footer>REALMQUEST • A fantasy RPG prototype <span>Progress saves on this device when you tap Save Game.</span></footer>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
