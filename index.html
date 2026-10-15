@@ -10,7 +10,7 @@
 <body>
   <header class="topbar">
     <div class="brand"><span class="brand-mark">✦</span><div><strong>REALMQUEST</strong><small>Chronicles of the Rift</small></div></div>
-    <div class="top-actions"><span class="online-dot"></span><span id="accountStatus">Guest Mode</span><button id="accountBtn" class="small-btn">Login / Sign up</button><button id="saveBtn" class="small-btn">Save Game</button></div>
+    <div class="top-actions"><span class="online-dot"></span><span id="accountStatus">Guest Mode</span><button id="saveBtn" class="small-btn">Save Game</button></div>
   </header>
 
   <main class="layout">
@@ -23,7 +23,7 @@
       <button id="beginBtn" class="primary-btn intro-cta">Begin Your Journey →</button>
       <p class="intro-footnote">Your adventure can begin as a guest. Online accounts need Firebase setup.</p>
     </section>
-    <section class="panel account-panel screen-hidden" id="accountPanel">
+    <section class="panel account-panel screen-hidden" id="accountPanel" style="display:none">
       <div class="section-heading"><div><p class="eyebrow">YOUR ADVENTURER</p><h2>Create Your Avatar & Account</h2></div><button id="closeAccountBtn" class="small-btn">Close</button></div>
       <p class="exp-desc">Choose your hero's look. Avatar settings save on this device. Online login activates after Firebase setup (instructions in README).</p>
       <div class="account-grid"><div class="avatar-preview" id="avatarPreview">🧙</div><div class="avatar-options">
@@ -64,9 +64,9 @@
         <p class="points-left">Unspent stat points: <strong id="statPoints">3</strong></p>
       </div>
       <div class="character-continue"><button id="continueGameBtn" class="primary-btn">Save Character & Enter Realm →</button><button id="backIntroBtn" class="secondary-btn">Back</button></div>
-      <div class="auth-grid"><label>Email address<input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com"></label><label>Password<input id="authPassword" type="password" minlength="6" autocomplete="current-password" placeholder="At least 6 characters"></label><div class="auth-buttons"><button id="signupBtn" class="primary-btn">Create Account</button><button id="loginBtn" class="secondary-btn">Login</button><button id="logoutBtn" class="secondary-btn">Logout</button></div><p id="authMessage" class="class-note">Online account login needs your own free Firebase project setup.</p></div>
+      <div class="auth-grid"><p class="eyebrow">OPTIONAL ONLINE ACCOUNT</p><label>Email address<input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com"></label><label>Password<input id="authPassword" type="password" minlength="6" autocomplete="current-password" placeholder="At least 6 characters"></label><div class="auth-buttons"><button id="signupBtn" class="primary-btn">Create Account</button><button id="loginBtn" class="secondary-btn">Login</button><button id="logoutBtn" class="secondary-btn">Logout</button></div><p id="authMessage" class="class-note">Online account login needs your own free Firebase project setup.</p></div>
     </section>
-    <div id="gameScreen" class="screen-hidden">
+    <div id="gameScreen" class="screen-hidden" style="display:none">
     <div class="game-nav"><button id="editCharacterBtn" class="secondary-btn">← Character / Account</button><span id="welcomePlayer">Your adventure begins</span></div>
     <section class="hero panel">
       <div class="hero-copy">

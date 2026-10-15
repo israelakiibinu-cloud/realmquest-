@@ -6,6 +6,9 @@
     intro.classList.toggle('screen-hidden', screen !== 'intro');
     character.classList.toggle('screen-hidden', screen !== 'character');
     game.classList.toggle('screen-hidden', screen !== 'game');
+    intro.style.display = screen === 'intro' ? '' : 'none';
+    character.style.display = screen === 'character' ? '' : 'none';
+    game.style.display = screen === 'game' ? '' : 'none';
     window.scrollTo({top: 0, behavior: 'smooth'});
   };
   const getProfile = () => { try { return JSON.parse(localStorage.getItem('realmquest-avatar') || '{}'); } catch { return {}; } };
@@ -19,7 +22,7 @@
   });
   $('backIntroBtn').addEventListener('click', () => show('intro'));
   $('editCharacterBtn').addEventListener('click', () => show('character'));
-  $('accountBtn').addEventListener('click', () => show('character'));
   $('closeAccountBtn').addEventListener('click', () => show('intro'));
   updateWelcome();
+  show('intro');
 })();

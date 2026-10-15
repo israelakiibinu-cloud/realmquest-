@@ -32,7 +32,6 @@ if (ready) {
 } else {
   message("Guest play is ready. To enable real accounts, connect your Firebase web config and enable Email/Password sign-in.");
 }
-$("closeAccountBtn").addEventListener("click", () => document.getElementById("introScreen").classList.remove("screen-hidden"));
 const savedAvatar = (() => { try { return JSON.parse(localStorage.getItem("realmquest-avatar") || "{}"); } catch { return {}; } })();
 if (savedAvatar.name) $("avatarName").value = savedAvatar.name;
 if (savedAvatar.emoji) $("avatarEmoji").value = savedAvatar.emoji;
