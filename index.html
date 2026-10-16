@@ -25,8 +25,8 @@
     </section>
     <section class="panel account-panel screen-hidden" id="accountPanel" style="display:none">
       <div class="section-heading"><div><p class="eyebrow">YOUR ADVENTURER</p><h2>Create Your Avatar & Account</h2></div><button id="closeAccountBtn" class="small-btn">Close</button></div>
-      <p class="exp-desc">Choose your hero's look. Avatar settings save on this device. Online login activates after Firebase setup (instructions in README).</p>
-      <div class="account-grid"><div class="avatar-preview" id="avatarPreview">🧙</div><div class="avatar-options">
+      <p class="exp-desc">Build your hero before entering the realm. Race and class are permanent, one-time choices. Your 3D-style preview updates as you customize your appearance.</p>
+      <div class="account-grid"><div class="character-3d-wrap"><div class="character-3d-stage aura-violet" id="avatarPreview" role="img" aria-label="3D-style character preview"><div class="character-platform"></div><div class="character-model" id="characterModel"><div class="model-cape"></div><div class="model-head"><span class="model-hair"></span><span class="model-face">◉‿◉</span></div><div class="model-neck"></div><div class="model-body"></div><div class="model-arm model-arm-left"></div><div class="model-arm model-arm-right"></div><div class="model-leg model-leg-left"></div><div class="model-leg model-leg-right"></div><div class="model-weapon" id="modelWeapon">⚔</div></div><span class="preview-badge" id="previewClassBadge">SWORDSMAN</span></div><p class="preview-hint">3D-style preview · change race, outfit, hair and weapon to customize your hero</p></div><div class="avatar-options">
         <label>Character name<input id="avatarName" maxlength="18" placeholder="e.g. RiftWalker"></label>
         <label>Choose avatar<select id="avatarEmoji"><option>🧙</option><option>🧝</option><option>🧛</option><option>🧟</option><option>🧑‍🚀</option><option>🦸</option><option>🥷</option><option>🧚</option><option>🐲</option><option>👑</option></select></label>
         <label>Accent aura<select id="avatarAura"><option value="violet">Arcane Violet</option><option value="gold">Royal Gold</option><option value="blue">Frost Blue</option><option value="green">Forest Green</option><option value="red">Rift Crimson</option></select></label><button id="saveAvatarBtn" class="primary-btn">Save Avatar</button>
@@ -41,8 +41,8 @@
         </div>
         <p class="appearance-summary" id="appearanceSummary">Flowing hair · Determined face · Traveler's Coat · Rune Sword</p>
       </div>
-      <div class="character-builder">
-        <h3>Choose Your Race</h3>
+      <div class="character-builder one-time-choice" id="raceChoicePanel">
+        <h3>Choose Your Race <small class="one-time-label">ONE-TIME CHOICE</small></h3>
         <div class="race-options">
           <button type="button" class="race-option selected" data-race="Human"><span>🧑</span><strong>Human</strong><small>Balanced · +2 Vitality</small></button>
           <button type="button" class="race-option" data-race="Elf"><span>🧝</span><strong>Elf</strong><small>Arcane · +3 Intelligence</small></button>
@@ -50,6 +50,18 @@
           <button type="button" class="race-option" data-race="Dragonkin"><span>🐉</span><strong>Dragonkin</strong><small>Resilient · +3 Vitality</small></button>
           <button type="button" class="race-option" data-race="Dwarf"><span>🧔</span><strong>Dwarf</strong><small>Fortitude · +2 Vitality, +1 Strength</small></button>
         </div>
+      </div>
+      <div class="character-builder one-time-choice" id="classChoicePanel">
+        <h3>Choose Your Class <small class="one-time-label">ONE-TIME CHOICE</small></h3>
+        <p class="exp-desc">Your race and class are permanent choices for this character. Choose carefully before entering the realm.</p>
+        <div class="class-options creation-class-options">
+          <button type="button" class="class-option creation-class-option selected" data-class="Swordsman"><span>⚔️</span><strong>Swordsman</strong><small>Balanced physical attacks · +2 Strength</small></button>
+          <button type="button" class="class-option creation-class-option" data-class="Mage"><span>🔮</span><strong>Mage</strong><small>Powerful magic · +3 Intelligence, +20 Mana</small></button>
+          <button type="button" class="class-option creation-class-option" data-class="Assassin"><span>🗡️</span><strong>Assassin</strong><small>Fast critical strikes · +3 Agility</small></button>
+          <button type="button" class="class-option creation-class-option" data-class="Summoner"><span>🐉</span><strong>Summoner</strong><small>Spirit allies · +2 Intelligence, +1 Luck</small></button>
+          <button type="button" class="class-option creation-class-option" data-class="Necromancer"><span>💀</span><strong>Necromancer</strong><small>Dark magic and life drain · +3 Intelligence</small></button>
+        </div>
+        <p class="class-note" id="creationClassNote">Swordsman: reliable damage with a blade.</p>
       </div>
       <div class="character-builder">
         <h3>Character Attributes</h3>
@@ -67,7 +79,7 @@
       <div class="auth-grid"><p class="eyebrow">OPTIONAL ONLINE ACCOUNT</p><label>Email address<input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com"></label><label>Password<input id="authPassword" type="password" minlength="6" autocomplete="current-password" placeholder="At least 6 characters"></label><div class="auth-buttons"><button id="signupBtn" class="primary-btn">Create Account</button><button id="loginBtn" class="secondary-btn">Login</button><button id="logoutBtn" class="secondary-btn">Logout</button></div><p id="authMessage" class="class-note">Online account login needs your own free Firebase project setup.</p></div>
     </section>
     <div id="gameScreen" class="screen-hidden" style="display:none">
-    <div class="game-nav"><button id="editCharacterBtn" class="secondary-btn">← Character / Account</button><span id="welcomePlayer">Your adventure begins</span></div>
+    <div class="game-nav"><span id="welcomePlayer">Your adventure begins</span><span class="character-identity" id="characterIdentity">Human · Swordsman</span></div>
     <section class="hero panel">
       <div class="hero-copy">
         <p class="eyebrow">THE FRONTIER AWAITS</p>
@@ -103,15 +115,10 @@
 
       <aside class="side-column">
         <section class="panel quest-panel"><div class="section-heading"><div><p class="eyebrow">GUILD NOTICE</p><h2>Beginner's Trial</h2></div><span class="quest-icon">📜</span></div><p>Defeat 3 creatures in the Whispering Wilds to prove your worth.</p><div class="quest-progress"><div><span>Progress</span><strong id="questText">0 / 3</strong></div><div class="bar"><span id="questBar" class="quest-fill"></span></div></div><div id="questReward" class="reward">Reward: <strong>60 gold</strong> + <strong>80 XP</strong></div></section>
+        <section class="panel quest-panel quest-board-panel"><div class="section-heading"><div><p class="eyebrow">ADVENTURERS GUILD</p><h2>Quest Board</h2></div><span class="quest-icon">🗺️</span></div><p>Complete contracts in different regions to earn Guild Coins and experience. Rewards are claimed automatically.</p><div id="questBoard" class="quest-board-list" aria-live="polite"></div></section>
         <section class="panel powers-panel"><p class="eyebrow">AWAKENED TALENT</p><h2>Arcane Pulse</h2><div class="power-symbol">✧</div><p>A spark of ancient energy lives within you. Focus it to deal powerful damage.</p><div class="power-stats"><span>Damage <strong>18–28</strong></span><span>Cost <strong>10 MP</strong></span></div></section>
-        <section class="panel class-panel"><div class="section-heading"><div><p class="eyebrow">CHOOSE YOUR PATH</p><h2>Adventurer Class</h2></div><span class="pill" id="classPill">Unchosen</span></div><p class="class-intro">Choose a combat style. You can change your class later as the game grows.</p><div class="class-options">
-          <button class="class-option selected" data-class="Swordsman"><span>⚔️</span><strong>Swordsman</strong><small>Balanced physical attacks</small></button>
-          <button class="class-option" data-class="Mage"><span>🔮</span><strong>Mage</strong><small>Stronger Arcane Pulse</small></button>
-          <button class="class-option" data-class="Assassin"><span>🗡️</span><strong>Assassin</strong><small>Quick, powerful strikes</small></button>
-          <button class="class-option" data-class="Summoner"><span>🐉</span><strong>Summoner</strong><small>Calls spectral allies</small></button>
-          <button class="class-option" data-class="Necromancer"><span>💀</span><strong>Necromancer</strong><small>Dark magic and draining power</small></button>
-        </div><p class="class-note" id="classNote">Swordsman: reliable damage with a blade.</p></section>
-        <section class="panel inventory-panel"><div class="section-heading"><h2>Inventory</h2><span class="pill">Starter Kit</span></div><div class="item"><span>🧪</span><div><strong>Healing Potion</strong><small>Restores 35 health</small></div><b id="inventoryPotions">2</b></div><div class="item"><span>🪙</span><div><strong>Guild Coins</strong><small>Spend them in future shops</small></div><b id="inventoryGold">25</b></div></section>
+
+        <section class="panel inventory-panel"><div class="section-heading"><h2>Inventory</h2><span class="pill">Starter Kit</span></div><div class="item"><span>🧪</span><div><strong>Healing Potion</strong><small>Restores 35 health</small></div><b id="inventoryPotions">2</b></div><div class="item"><span>🪙</span><div><strong>Guild Coins</strong><small>Spend them at the Guild Shop</small></div><b id="inventoryGold">25</b></div></section>
       </aside>
     </div>
     <div class="expansion-grid">
@@ -121,7 +128,8 @@
         <button class="location-option" data-location="Ancient Ruins" data-art="🏛️　🌌　🗿" data-desc="Forgotten magic lingers between broken pillars. Only prepared hunters should enter.">🏛️ <span><strong>Ancient Ruins</strong><small>Elite monsters • Rare loot chance</small></span><b>C</b></button>
       </div><p class="class-note" id="locationNote">Selected: Whispering Wilds</p></section>
       <section class="panel expansion-panel"><p class="eyebrow">POWER DEVELOPMENT</p><h2>Awakening Path</h2><p class="exp-desc">Your class grows stronger as you gain levels. This prototype includes simple class bonuses; deeper evolutions can be unlocked in future versions.</p><div class="evolution-card"><span class="evolution-icon">✦</span><div><strong id="evolutionTitle">Unawakened Talent</strong><small id="evolutionDesc">Reach level 3 to awaken your first talent.</small></div><span class="pill" id="evolutionStatus">Locked</span></div><div class="evolution-card"><span class="evolution-icon">✧</span><div><strong>Class Evolution</strong><small>Reach level 5 to unlock your next milestone.</small></div><span class="pill" id="classEvolutionStatus">Locked</span></div></section>
-      <section class="panel expansion-panel"><p class="eyebrow">EQUIPMENT</p><h2>Inventory & Gear</h2><p class="exp-desc">Your current gear affects your adventure. Defeated monsters may drop useful items.</p><div class="gear-row"><span>⚔️</span><div><strong id="weaponName">Training Blade</strong><small>Weapon • Common</small></div><b id="weaponBonus">+0 ATK</b></div><div class="gear-row"><span>🛡️</span><div><strong id="armorName">Traveler's Tunic</strong><small>Armor • Common</small></div><b id="armorBonus">+0 DEF</b></div><div class="loot-box"><span>🎒</span><span><strong id="lootText">No new loot yet.</strong><small>Monster drops appear here.</small></span></div></section>
+      <section class="panel expansion-panel"><p class="eyebrow">EQUIPMENT</p><h2>Inventory & Gear</h2><p class="exp-desc">Your current gear affects your adventure. Defeated monsters may drop useful items.</p><div class="gear-row"><span>⚔️</span><div><strong id="weaponName">Training Blade</strong><small>Weapon • Common</small></div><b id="weaponBonus">+0 ATK</b></div><p id="weaponAttributes" class="gear-attributes">Attributes: none</p><div class="gear-row"><span>🛡️</span><div><strong id="armorName">Traveler's Tunic</strong><small>Armor • Common</small></div><b id="armorBonus">+0 DEF</b></div><div class="loot-box"><span>🎒</span><span><strong id="lootText">No new loot yet.</strong><small>Monster drops appear here.</small></span></div></section>
+      <section class="panel expansion-panel guild-shop-panel"><p class="eyebrow">GUILD EXCHANGE</p><h2>Guild Shop</h2><p class="exp-desc">Spend Guild Coins on weapons with unique attribute bonuses. Purchased weapons are equipped immediately.</p><div class="shop-wallet">🪙 Your balance: <strong><span id="shopCoins">25</span> Guild Coins</strong></div><div id="guildShopItems" class="guild-shop-items"></div><p id="shopMessage" class="class-note" aria-live="polite">Choose equipment that suits your class.</p></section>
       <section class="panel expansion-panel"><p class="eyebrow">DUNGEON CHALLENGE</p><h2>Boss Encounter</h2><p class="exp-desc">When you're ready, challenge a boss with much more health and damage than normal creatures.</p><div class="boss-card"><span class="boss-art">🐉</span><div><strong id="bossName">Ashfang, Rift Drake</strong><small id="bossStatus">A dangerous presence stirs beyond the ruins.</small></div></div><button id="bossBtn" class="primary-btn boss-btn">⚔ Challenge Boss</button><p class="class-note">Recommended: Level 3 or higher.</p></section>
     </div>
     <footer>REALMQUEST • A fantasy RPG prototype <span>Guest progress saves on this device. Online accounts require Firebase setup.</span></footer>

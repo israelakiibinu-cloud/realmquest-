@@ -1,32 +1,44 @@
-# RealmQuest V5 — Character Creator
+# RealmQuest V5 — Character, Quest & Guild Shop Update
 
-## V5 polish update
-- New three-step flow: Intro page → Character Creation → Game screen.
-- The game is no longer displayed on the same page as the character creator. Use “Character / Account” in the game to return to setup.
-- Guest players can save a character locally and enter the game without configuring online accounts.
-- Login and account creation show a clear setup message until Firebase is configured. Real online login cannot be activated with placeholder Firebase values.
+## Player flow
+- Intro page → one-time character creation → game.
+- Race and class are selected during first character creation and become permanent after entering the realm.
+- The in-game screen no longer links back to character creation, so race/class selection does not appear again during normal play.
+- Guest play and local saves work without Firebase setup. Online login remains optional and requires your own Firebase configuration.
 
-## What's new
-- Avatar appearance studio: avatar emoji, aura colour, hairstyle, face, outfit and weapon style.
-- Playable races: Human, Elf, Demon, Dragonkin and Dwarf, each with attribute bonuses.
-- Strength, Intelligence, Agility, Vitality and Luck attributes, plus spendable points.
-- Mana-based Arcane Burst, login/auth scaffold and existing adventure features.
+## Character creation
+- CSS-built 3D-style character preview with layered body parts, depth, lighting, outfit styles, weapon display and race-specific details.
+- Preview updates when race, class, hairstyle, face, outfit, weapon style or aura changes.
+- Drag/swipe the preview horizontally to rotate the character.
+- Five races and five classes with starting attribute bonuses.
+- Strength, Intelligence, Agility, Vitality and Luck, with three points to assign before entering the realm.
+- This is a lightweight CSS 3D-style model, not a full polygonal/WebGL character editor; it runs without a 3D library or external assets.
 
-## Publish the update
-Upload every file in this `realmquest` folder to the root of your existing GitHub repository, replacing files with the same names. Add the new `character.js` and `flow.js` files too. Wait for Render to redeploy.
+## Gameplay
+- Three regions: Whispering Wilds, Crystal Caverns and Ancient Ruins, each with distinct enemies and reward scaling.
+- Class-based physical and magic attacks, critical hits, enemy turns, potions, rest and level progression.
+- Seven quest-board contracts with progress tracking and automatic Guild Coin/XP rewards.
+- Beginner's Trial: defeat three creatures for additional Guild Coins and XP.
+- Boss challenge: Ashfang, Rift Drake, unlocked at level 3.
+- Monster drops and equipment bonuses.
 
-## Notes
-Character appearance/race/attributes currently save in this browser using localStorage. Online authentication needs the Firebase configuration described in `auth.js`; these character attributes are not yet synchronised to a cloud database or other devices. Attribute totals show race bonuses; this prototype does not yet apply every attribute to battle calculations.
+## Guild Shop
+- Spend Guild Coins earned from monsters and quests.
+- Five weapons with different attack, Strength, Intelligence, Agility, Vitality, Luck, critical-hit and mana attributes.
+- Purchased weapons equip immediately and their attack/stat bonuses affect combat.
+- Current weapon and shop purchases persist in the local save.
 
+## Deploy the update
+1. Download and extract `RealmQuest_V5_Character_Quests_Shop.zip`.
+2. Open the existing GitHub repository used by Render.
+3. Replace the matching files in the existing `realmquest` folder with the files from the ZIP. Do not create a second nested `realmquest/realmquest` folder.
+4. Commit the changes and wait for Render to redeploy.
+5. Open the live site and test the intro → character creation → game flow, quest board and Guild Shop.
 
-## Mana rules
-Mage, Summoner, and Necromancer start with 100/100 MP. Swordsman and Assassin start with 50/50 MP. Choosing a mana-focused class restores MP to 100. Resting at camp restores both HP and MP.
+## Saving and accounts
+- Character, quest progress, equipment and adventure progress save in this browser using `localStorage`.
+- Progress does not sync to other devices until a cloud-save backend is built.
+- Online email/password authentication needs a Firebase project and valid configuration in `auth.js`. Never share passwords or private account credentials.
 
-## Enable real email/password login
-1. Create your own Firebase project and register a Web app.
-2. In Firebase Authentication, enable the Email/Password provider.
-3. Copy the web app configuration into `auth.js`, replacing each `PASTE_YOUR_...` placeholder.
-4. Add your deployed Render site domain to Firebase Authentication authorized domains if Firebase asks for it.
-5. Redeploy and test Create Account, Login, and Logout. Never send your password or private account credentials to anyone.
-
-Important: online authentication only confirms who is signed in. This version still stores game progress locally on the device; cloud save syncing is not included.
+## Testing notes
+- This update is packaged for the existing V5 frontend. After deployment, test the live Render build on mobile and desktop before treating it as production-ready.
