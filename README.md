@@ -51,3 +51,14 @@
 - Guild Shop has additional weapons with attack, attribute, mana, and critical-hit bonuses.
 - Boss arena now cycles through a roster of ten bosses with escalating level requirements and rewards.
 - The Three.js renderer loads from jsDelivr, so the live browser needs an internet connection for the 3D preview. If the CDN is blocked, the existing CSS character preview remains available.
+
+
+## V5 improvement update
+- Added a local **Reset Character** control. It clears this device's character and local game save after confirmation. It does not delete a Firebase account.
+- Added a separate **Delete Online Account** action. This only works after Firebase is configured and an online user is signed in; Firebase may require a fresh login.
+- Guild Shop now has category filters for weapons, armor, accessories, potions/tonics, materials, and rare items.
+- Level-ups award skill points. Reach level 3 and spend one point to unlock Rift Strike, which boosts skill damage.
+- Quest Board is now collapsible and remembers whether it was open.
+- The 30-second camp recovery timer remains in place.
+
+Note: online authentication is still disabled until you add your own Firebase web configuration in `auth.js`. The game save remains local to the current device/browser.

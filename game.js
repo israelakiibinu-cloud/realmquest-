@@ -3,15 +3,15 @@
   const $ = id => document.getElementById(id);
   const defaultState = {
     health: 100, maxHealth: 100, mana: 50, maxMana: 50, xp: 0, level: 1,
-    gold: 25, potions: 2, defeated: 0, monster: null, questComplete: false,
+    gold: 25, potions: 2, skillPoints: 0, unlockedSkills: ['arcane-pulse'], materials: 0, defeated: 0, monster: null, questComplete: false,
     playerClass: 'Swordsman', race: 'Human', currentLocation: 'Whispering Wilds',
     weapon: { name: 'Training Blade', icon: '⚔️', cost: 0, attack: 0, strength: 0, intelligence: 0, agility: 0, luck: 0, crit: 0 },
-    armor: { name: "Traveler's Tunic", defense: 0 }, bossDefeated: false, bossesDefeated: [],
+    armor: { name: "Traveler's Tunic", defense: 0 }, accessory: { name: 'Plain Charm', icon: '📿', strength: 0, intelligence: 0, agility: 0, vitality: 0, luck: 0, crit: 0 }, bossDefeated: false, bossesDefeated: [],
     killsByLocation: { 'Whispering Wilds': 0, 'Crystal Caverns': 0, 'Ancient Ruins': 0 },
     questClaims: {}, shopPurchases: []
   };
   let state = structuredClone(defaultState);
-  try { const saved = JSON.parse(localStorage.getItem('realmquest-save') || 'null'); if (saved) state = { ...state, ...saved, weapon: { ...defaultState.weapon, ...(saved.weapon || {}) }, armor: { ...defaultState.armor, ...(saved.armor || {}) }, killsByLocation: { ...defaultState.killsByLocation, ...(saved.killsByLocation || {}) }, questClaims: saved.questClaims || {}, shopPurchases: saved.shopPurchases || [], bossesDefeated: saved.bossesDefeated || [] }; } catch {}
+  try { const saved = JSON.parse(localStorage.getItem('realmquest-save') || 'null'); if (saved) state = { ...state, ...saved, weapon: { ...defaultState.weapon, ...(saved.weapon || {}) }, armor: { ...defaultState.armor, ...(saved.armor || {}) }, accessory: { ...defaultState.accessory, ...(saved.accessory || {}) }, unlockedSkills: saved.unlockedSkills || ['arcane-pulse'], skillPoints: Number(saved.skillPoints)||0, killsByLocation: { ...defaultState.killsByLocation, ...(saved.killsByLocation || {}) }, questClaims: saved.questClaims || {}, shopPurchases: saved.shopPurchases || [], bossesDefeated: saved.bossesDefeated || [] }; } catch {}
 
   const character = (() => { try { return JSON.parse(localStorage.getItem('realmquest-character-v5') || '{}'); } catch { return {}; } })();
   const raceBonus = { Human: { vitality: 2 }, Elf: { intelligence: 3 }, Demon: { strength: 3 }, Dragonkin: { vitality: 3 }, Dwarf: { vitality: 2, strength: 1 } };
@@ -19,7 +19,7 @@
   state.race = character.race || state.race || 'Human';
   state.playerClass = character.playerClass || state.playerClass || 'Swordsman';
   const charStats = character.stats || { strength: 7, intelligence: 7, agility: 7, vitality: 7, luck: 7 };
-  const stat = key => (Number(charStats[key]) || 7) + (raceBonus[state.race]?.[key] || 0) + (classBonus[state.playerClass]?.[key] || 0) + (Number(state.weapon?.[key]) || 0);
+  const stat = key => (Number(charStats[key]) || 7) + (raceBonus[state.race]?.[key] || 0) + (classBonus[state.playerClass]?.[key] || 0) + (Number(state.weapon?.[key]) || 0) + (Number(state.accessory?.[key]) || 0);
 
   const areas = {
     'Whispering Wilds': { mult: 1, art: '🌲　🌙　🏔️', desc: 'Mist curls between ancient trees. New hunters learn to survive here.', names: ['Wild Wolf', 'Moss Goblin', 'Cave Slime', 'Rift Boar'] },
@@ -89,21 +89,45 @@
     ,{ id: 'sunstaff', name: 'Sunfire Scepter', icon: '☀️', cost: 175, attack: 12, intelligence: 6, mana: 25, rarity: 'Legendary', desc: '+12 ATK · +6 INT · +25 Max Mana' }
     ,{ id: 'riftsplitter', name: 'Rift Splitter', icon: '🌌', cost: 250, attack: 18, strength: 5, vitality: 3, crit: 6, rarity: 'Mythic', desc: '+18 ATK · +5 STR · +3 VIT · +6% Crit' }
   ];
+  const shopExtras = [
+    { id:'leather-vest', type:'armor', name:'Leather Scout Vest', icon:'🦺', cost:45, defense:3, rarity:'Common', desc:'+3 DEF · light protection' },
+    { id:'iron-plate', type:'armor', name:'Ironbound Plate', icon:'🛡️', cost:100, defense:7, vitality:2, rarity:'Rare', desc:'+7 DEF · +2 VIT' },
+    { id:'rune-mail', type:'armor', name:'Runic Warden Mail', icon:'✨', cost:180, defense:11, intelligence:2, vitality:3, rarity:'Epic', desc:'+11 DEF · +2 INT · +3 VIT' },
+    { id:'lucky-charm', type:'accessory', name:'Lucky Hare Charm', icon:'🍀', cost:55, luck:3, crit:2, rarity:'Common', desc:'+3 LCK · +2% Crit' },
+    { id:'mage-pendant', type:'accessory', name:'Sage Pendant', icon:'📿', cost:90, intelligence:4, rarity:'Rare', desc:'+4 INT' },
+    { id:'dragon-heart', type:'accessory', name:'Dragonheart Sigil', icon:'🐉', cost:160, strength:2, vitality:3, luck:2, rarity:'Epic', desc:'+2 STR · +3 VIT · +2 LCK' },
+    { id:'healing-potion-pack', type:'potion', name:'Healing Potion ×3', icon:'🧪', cost:30, amount:3, rarity:'Common', desc:'Adds 3 potions · each restores 35 HP' },
+    { id:'greater-potion-pack', type:'potion', name:'Greater Potion ×2', icon:'💚', cost:65, amount:2, heal:65, rarity:'Rare', desc:'Adds 2 greater potions · restores 65 HP' },
+    { id:'mana-tonic', type:'potion', name:'Mana Tonic ×2', icon:'💧', cost:35, amount:2, manaPotion:true, rarity:'Common', desc:'Adds 2 mana tonics · restores 25 MP' },
+    { id:'rift-shard', type:'material', name:'Rift Shard', icon:'🔷', cost:25, amount:1, rarity:'Rare', desc:'Crafting material for future upgrades' },
+    { id:'monster-core', type:'material', name:'Monster Core', icon:'🟣', cost:40, amount:1, rarity:'Rare', desc:'A condensed monster essence' },
+    { id:'phoenix-feather', type:'rare', name:'Phoenix Feather', icon:'🪶', cost:200, revive:true, rarity:'Legendary', desc:'Rare item · restores you to full HP and MP when used at camp' }
+  ];
+  const allShopItems = [...shop.map(item => ({...item, type:'weapon'})), ...shopExtras];
 
   function log(message) { const p = document.createElement('p'); p.textContent = '✦ ' + message; $('log').prepend(p); }
   function save(silent = true) { localStorage.setItem('realmquest-save', JSON.stringify(state)); if (!silent) log('Adventure saved on this device.'); }
   function rank() { if (state.level >= 10 || state.defeated >= 20) return 'S-Rank Hunter'; if (state.level >= 7 || state.defeated >= 12) return 'A-Rank Hunter'; if (state.level >= 5 || state.defeated >= 8) return 'B-Rank Hunter'; if (state.level >= 3 || state.defeated >= 4) return 'C-Rank Hunter'; if (state.level >= 2 || state.defeated >= 2) return 'D-Rank Hunter'; return 'E-Rank Hunter'; }
   function questProgress(q) { if (q.type === 'location') return state.killsByLocation[q.location] || 0; if (q.type === 'kills') return state.defeated; if (q.type === 'level') return state.level; if (q.type === 'boss') return state.bossDefeated ? 1 : 0; return 0; }
-  function awardXP(amount) { state.xp += amount; while (state.xp >= state.level * 100) { state.xp -= state.level * 100; state.level++; state.maxHealth += 15; state.health = Math.min(state.maxHealth, state.health + 25); state.maxMana += 10; state.mana = state.maxMana; log(`LEVEL UP! You reached level ${state.level}. Maximum health and mana increased.`); } }
+  function awardXP(amount) { state.xp += amount; while (state.xp >= state.level * 100) { state.xp -= state.level * 100; state.level++; state.skillPoints = (state.skillPoints || 0) + 1; state.maxHealth += 15; state.health = Math.min(state.maxHealth, state.health + 25); state.maxMana += 10; state.mana = state.maxMana; log(`LEVEL UP! You reached level ${state.level}. Maximum health and mana increased.`); } }
   function claimCompletedQuests() { quests.forEach(q => { if (!state.questClaims[q.id] && questProgress(q) >= q.target) { state.questClaims[q.id] = true; state.gold += q.coins; awardXP(q.xp); log(`QUEST COMPLETE: ${q.name}! +${q.coins} Guild Coins and +${q.xp} XP.`); } }); }
   function renderQuests() {
     const board = $('questBoard'); if (!board) return;
-    board.innerHTML = quests.map(q => { const progress = Math.min(questProgress(q), q.target), claimed = !!state.questClaims[q.id]; return `<article class="quest-card ${claimed ? 'quest-card-done' : ''}"><div class="quest-card-top"><span class="quest-card-icon">${q.icon}</span><div><strong>${q.name}</strong><small>${q.desc}</small></div><span class="quest-state">${claimed ? '✓ DONE' : `${progress}/${q.target}`}</span></div><div class="bar"><span class="quest-card-fill" style="width:${progress / q.target * 100}%"></span></div><div class="quest-card-reward">Reward: <b>🪙 ${q.coins}</b> · <b>✧ ${q.xp} XP</b></div></article>`; }).join('');
+    const completed = quests.filter(q => !!state.questClaims[q.id]).length;
+    board.innerHTML = `<details class="quest-fold" ${localStorage.getItem('rq-quests-open') === 'true' ? 'open' : ''}><summary>📜 Browse contracts <span>${completed}/${quests.length} completed</span></summary><div class="quest-fold-list">${quests.map(q => { const progress = Math.min(questProgress(q), q.target), claimed = !!state.questClaims[q.id]; return `<article class="quest-card ${claimed ? 'quest-card-done' : ''}"><div class="quest-card-top"><span class="quest-card-icon">${q.icon}</span><div><strong>${q.name}</strong><small>${q.desc}</small></div><span class="quest-state">${claimed ? '✓ DONE' : `${progress}/${q.target}`}</span></div><div class="bar"><span class="quest-card-fill" style="width:${progress / q.target * 100}%"></span></div><div class="quest-card-reward">Reward: <b>🪙 ${q.coins}</b> · <b>✧ ${q.xp} XP</b></div></article>`; }).join('')}</div></details>`;
+    board.querySelector('details').addEventListener('toggle', e => localStorage.setItem('rq-quests-open', String(e.currentTarget.open)));
   }
   function renderShop() {
     const list = $('guildShopItems'); if (!list) return;
-    list.innerHTML = shop.map(item => { const owned = state.shopPurchases.includes(item.id); const equipped = state.weapon?.id === item.id; return `<article class="shop-item"><span class="shop-item-icon">${item.icon}</span><div class="shop-item-info"><strong>${item.name} <small class="rarity-${item.rarity.toLowerCase()}">${item.rarity}</small></strong><p>${item.desc}</p><small>🪙 ${item.cost} Guild Coins</small></div><button type="button" class="shop-buy-btn" data-buy="${item.id}" ${equipped || state.gold < item.cost ? 'disabled' : ''}>${equipped ? 'Equipped' : owned ? 'Buy Again' : 'Purchase'}</button></article>`; }).join('');
-    list.querySelectorAll('[data-buy]').forEach(button => button.addEventListener('click', () => buyWeapon(button.dataset.buy)));
+    const active = $('shopCategory')?.value || 'all';
+    const items = allShopItems.filter(item => active === 'all' || item.type === active);
+    list.innerHTML = items.map(item => {
+      const equipped = item.type === 'weapon' ? state.weapon?.id === item.id : item.type === 'armor' ? state.armor?.id === item.id : item.type === 'accessory' ? state.accessory?.id === item.id : false;
+      const canBuy = state.gold >= item.cost;
+      const label = equipped ? 'Equipped' : canBuy ? (['potion','material','rare'].includes(item.type) ? 'Purchase' : 'Buy & Equip') : 'Need more coins';
+      return `<article class="shop-item"><span class="shop-item-icon">${item.icon}</span><div class="shop-item-info"><strong>${item.name} <small class="rarity-${item.rarity.toLowerCase()}">${item.rarity}</small></strong><p>${item.desc}</p><small>🪙 ${item.cost} Guild Coins</small></div><button type="button" class="shop-buy-btn" data-buy="${item.id}" ${equipped || !canBuy ? 'disabled' : ''}>${label}</button></article>`;
+    }).join('');
+    list.querySelectorAll('[data-buy]').forEach(button => button.addEventListener('click', () => buyShopItem(button.dataset.buy)));
     $('shopCoins').textContent = state.gold;
   }
   function render() {
@@ -117,9 +141,13 @@
     if (state.questComplete) $('questReward').style.color = 'var(--green)';
     $('weaponName').textContent = state.weapon?.name || 'Training Blade'; $('weaponBonus').textContent = `+${state.weapon?.attack || 0} ATK`;
     $('weaponAttributes').textContent = `Attributes: ${attributeSummary(state.weapon)}`;
+    $('accessoryName') && ($('accessoryName').textContent = state.accessory?.name || 'Plain Charm');
+    $('accessoryBonus') && ($('accessoryBonus').textContent = attributeSummary(state.accessory));
+    $('skillPoints') && ($('skillPoints').textContent = state.skillPoints || 0);
+    $('skillStatus') && ($('skillStatus').textContent = (state.level >= 3 ? 'Awakening unlocked' : `Awakening at level 3`) + ` · ${state.skillPoints || 0} skill points`);
     $('armorName').textContent = state.armor?.name || "Traveler's Tunic"; $('armorBonus').textContent = `+${state.armor?.defense || 0} DEF`;
     $('locationPill').textContent = state.currentLocation; $('locationNote').textContent = `Selected: ${state.currentLocation}`;
-    $('attackBtn').disabled = !state.monster; $('powerBtn').disabled = !state.monster || state.mana < 10; $('potionBtn').disabled = state.potions < 1 || state.health === state.maxHealth;
+    $('attackBtn').disabled = !state.monster; $('powerBtn').disabled = !state.monster || state.mana < 10; $('powerBtn').textContent = (state.unlockedSkills || []).includes('rift-strike') ? '✦ Rift Strike (10 MP)' : '✦ Arcane Burst (10 MP)'; $('potionBtn').disabled = !((state.greaterPotions || 0) > 0 && state.health < state.maxHealth || state.potions > 0 && state.health < state.maxHealth || (state.manaTonics || 0) > 0 && state.mana < state.maxMana);
     const upcomingBoss = nextBoss(); $('bossBtn').disabled = !upcomingBoss || state.level < upcomingBoss.level || !!state.monster || state.health <= 0;
     $('bossName').textContent = upcomingBoss ? upcomingBoss.name : 'All bosses defeated'; $('bossStatus').textContent = !upcomingBoss ? 'Legendary victory! Every known boss has fallen.' : state.level < upcomingBoss.level ? `Reach level ${upcomingBoss.level} to unlock this boss.` : `${(state.bossesDefeated||[]).length}/10 bosses defeated. Prepare for battle.`;
     $('bossBtn').textContent = upcomingBoss ? `⚔ Challenge ${upcomingBoss.name}` : '✓ All Bosses Defeated';
@@ -130,14 +158,34 @@
     renderQuests(); renderShop();
   }
   function attributeSummary(w) { const attrs = []; if (w?.strength) attrs.push(`+${w.strength} STR`); if (w?.intelligence) attrs.push(`+${w.intelligence} INT`); if (w?.agility) attrs.push(`+${w.agility} AGI`); if (w?.vitality) attrs.push(`+${w.vitality} VIT`); if (w?.luck) attrs.push(`+${w.luck} LCK`); if (w?.crit) attrs.push(`+${w.crit}% Crit`); if (w?.mana) attrs.push(`+${w.mana} Mana`); return attrs.join(' · ') || 'No bonus attributes'; }
-  function buyWeapon(id) {
-    const item = shop.find(x => x.id === id); if (!item) return;
+  function buyShopItem(id) {
+    const item = allShopItems.find(x => x.id === id); if (!item) return;
     if (state.gold < item.cost) { $('shopMessage').textContent = 'Not enough Guild Coins. Complete quests or hunt monsters for more.'; return; }
-    if (state.weapon?.id === id) { $('shopMessage').textContent = 'That weapon is already equipped.'; return; }
-    state.gold -= item.cost; state.shopPurchases.push(id); state.weapon = { ...item };
-    if (item.mana) { state.maxMana = Math.max(state.maxMana, 50 + item.mana + (['Mage', 'Summoner', 'Necromancer'].includes(state.playerClass) ? 50 : 0)); state.mana = Math.min(state.maxMana, state.mana + item.mana); }
-    $('shopMessage').textContent = `${item.name} equipped! ${attributeSummary(item)}.`; $('lootText').textContent = `Guild Shop purchase: ${item.name} equipped.`; log(`Purchased ${item.name} for ${item.cost} Guild Coins.`); save(); render();
+    if ((item.type === 'weapon' && state.weapon?.id === id) || (item.type === 'armor' && state.armor?.id === id) || (item.type === 'accessory' && state.accessory?.id === id)) { $('shopMessage').textContent = 'That item is already equipped.'; return; }
+    state.gold -= item.cost; state.shopPurchases.push(id);
+    if (item.type === 'weapon') { state.weapon = {...item}; if (item.mana) { state.maxMana += item.mana; state.mana = Math.min(state.maxMana, state.mana + item.mana); } }
+    else if (item.type === 'armor') state.armor = {...item};
+    else if (item.type === 'accessory') state.accessory = {...item};
+    else if (item.type === 'potion') { if (item.manaPotion) state.manaTonics = (state.manaTonics || 0) + item.amount; else if (item.heal) state.greaterPotions = (state.greaterPotions || 0) + item.amount; else state.potions += item.amount; }
+    else if (item.type === 'material') state.materials = (state.materials || 0) + item.amount;
+    else if (item.type === 'rare' && item.revive) state.phoenixFeathers = (state.phoenixFeathers || 0) + 1;
+    $('shopMessage').textContent = ['weapon','armor','accessory'].includes(item.type) ? `${item.name} equipped!` : `${item.name} added to your inventory.`;
+    $('lootText').textContent = `Guild Shop: ${item.name} ${['weapon','armor','accessory'].includes(item.type) ? 'equipped' : 'added to inventory'}.`;
+    log(`Purchased ${item.name} for ${item.cost} Guild Coins.`); save(); render();
   }
+  function resetLocalProgress() {
+    if (!confirm('Reset this character and ALL local game progress on this device? This cannot be undone.')) return;
+    ['realmquest-save','realmquest-character-v5','realmquest-character-created-v5','realmquest-avatar'].forEach(key => localStorage.removeItem(key));
+    location.reload();
+  }
+  $('resetProgressBtn')?.addEventListener('click', resetLocalProgress);
+  $('shopCategory')?.addEventListener('change', renderShop);
+  $('unlockSkillBtn')?.addEventListener('click', () => {
+    if (state.level < 3) { $('skillStatus').textContent = 'Reach level 3 to unlock the advanced skill.'; return; }
+    if ((state.skillPoints || 0) < 1) { $('skillStatus').textContent = 'Earn a skill point each time you level up.'; return; }
+    if ((state.unlockedSkills || []).includes('rift-strike')) { $('skillStatus').textContent = 'Rift Strike is already unlocked.'; return; }
+    state.skillPoints--; state.unlockedSkills.push('rift-strike'); $('skillStatus').textContent = 'Rift Strike unlocked! Your next power attack deals extra damage.'; save(); render();
+  });
   function startFight() {
     if (state.health <= 0) { log('Rest at camp before exploring again.'); return; }
     if (state.monster) { log('Finish your current battle first.'); return; }
@@ -169,6 +217,7 @@
     let damage = power ? 18 + Math.floor(Math.random() * 11) + Math.floor((stat('intelligence') - 7) * 1.5) : 10 + Math.floor(Math.random() * 9) + Math.floor((stat('strength') - 7) * 1.3);
     damage += state.weapon?.attack || 0;
     if (power && ['Mage', 'Necromancer'].includes(state.playerClass)) damage += state.playerClass === 'Mage' ? 10 : 5;
+    if (power && (state.unlockedSkills || []).includes('rift-strike')) damage += 12;
     if (!power && state.playerClass === 'Assassin') damage += 5;
     if (!power && state.playerClass === 'Summoner') damage += 3;
     const critChance = Math.min(45, 5 + Math.floor(stat('agility') / 2) + (state.weapon?.crit || 0)); const critical = Math.random() * 100 < critChance; if (critical) damage = Math.round(damage * 1.7);
@@ -181,7 +230,7 @@
   $('exploreBtn').addEventListener('click', startFight);
   $('attackBtn').addEventListener('click', () => playerAttack(false));
   $('powerBtn').addEventListener('click', () => playerAttack(true));
-  $('potionBtn').addEventListener('click', () => { if (state.potions < 1 || state.health === state.maxHealth) return; state.potions--; const before = state.health; state.health = Math.min(state.maxHealth, state.health + 35); log(`You drink a potion and recover ${state.health - before} health.`); if (state.monster) enemyTurn(); render(); });
+  $('potionBtn').addEventListener('click', () => { if ((state.greaterPotions || 0) > 0 && state.health < state.maxHealth) { state.greaterPotions--; const before=state.health; state.health=Math.min(state.maxHealth,state.health+65); log(`You drink a greater potion and recover ${state.health-before} health.`); } else if (state.potions > 0 && state.health < state.maxHealth) { state.potions--; const before=state.health; state.health=Math.min(state.maxHealth,state.health+35); log(`You drink a potion and recover ${state.health-before} health.`); } else if ((state.manaTonics || 0) > 0 && state.mana < state.maxMana) { state.manaTonics--; const before=state.mana; state.mana=Math.min(state.maxMana,state.mana+25); log(`You drink a mana tonic and recover ${state.mana-before} MP.`); } else return; save(); if (state.monster) enemyTurn(); render(); });
   let restTimer = null, resting = false;
   $('restBtn').addEventListener('click', () => {
     if (resting) return;

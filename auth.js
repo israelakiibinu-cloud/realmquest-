@@ -1,7 +1,7 @@
 // RealmQuest authentication. Add your Firebase web app config below to enable real accounts.
 // Firebase Console -> Project settings -> Your apps -> Web app config.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "PASTE_YOUR_FIREBASE_API_KEY",
@@ -39,8 +39,9 @@ if (savedAvatar.aura) $("avatarAura").value = savedAvatar.aura;
 function renderAvatar() {
   const emoji = $("avatarEmoji").value;
   const aura = $("avatarAura").value;
-  $("avatarPreview").textContent = emoji;
-  $("avatarPreview").className = "avatar-preview aura-" + aura;
+  const preview = $("avatarPreview");
+  if (preview) { preview.classList.remove("aura-violet", "aura-gold", "aura-blue", "aura-green", "aura-red"); preview.classList.add("aura-" + aura); preview.setAttribute("aria-label", "Character preview, selected avatar " + emoji); }
+  const face = document.querySelector("#characterModel .model-face"); if (face) face.textContent = emoji;
 }
 $("avatarEmoji").addEventListener("change", renderAvatar);
 $("avatarAura").addEventListener("change", renderAvatar);
@@ -66,4 +67,12 @@ $("logoutBtn").addEventListener("click", async () => {
   if (!auth) { message("No account session is active. Configure Firebase to use online login."); return; }
   try { await signOut(auth); message("Logged out. You can continue as a guest."); }
   catch (e) { message(e.message.replace("Firebase: ", "")); }
+});
+
+$("deleteOnlineAccountBtn")?.addEventListener("click", async () => {
+  if (!auth || !auth.currentUser) { message("No online account is signed in. Use Reset Character to clear local character and game progress on this device."); return; }
+  const user = auth.currentUser;
+  if (!confirm("Permanently delete the signed-in online account? This cannot be undone. Local game progress is separate and will not be deleted by this action.")) return;
+  try { await deleteUser(user); message("Online account deleted. Local game progress remains on this device; use Reset Character to clear it too."); $("accountStatus").textContent = "Guest Mode"; }
+  catch (e) { message(e.code === "auth/requires-recent-login" ? "For security, log out and log back in, then retry deleting the account." : "Could not delete online account: " + e.message.replace("Firebase: ", "")); }
 });
