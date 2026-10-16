@@ -42,3 +42,12 @@
 
 ## Testing notes
 - This update is packaged for the existing V5 frontend. After deployment, test the live Render build on mobile and desktop before treating it as production-ready.
+
+
+## V5 expanded systems update
+- Camp rest now uses a visible 30-second countdown. Health and mana restore only when it completes; the rest button is locked during the countdown.
+- Character preview now includes an optional Three.js procedural 3D miniature with drag rotation and race/class-inspired styling. This is a lightweight procedural model, not a professionally sculpted downloadable character asset.
+- Guild board includes the original contracts plus 42 generated region-hunting contracts (50+ total entries).
+- Guild Shop has additional weapons with attack, attribute, mana, and critical-hit bonuses.
+- Boss arena now cycles through a roster of ten bosses with escalating level requirements and rewards.
+- The Three.js renderer loads from jsDelivr, so the live browser needs an internet connection for the 3D preview. If the CDN is blocked, the existing CSS character preview remains available.

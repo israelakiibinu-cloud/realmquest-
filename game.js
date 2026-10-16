@@ -6,12 +6,12 @@
     gold: 25, potions: 2, defeated: 0, monster: null, questComplete: false,
     playerClass: 'Swordsman', race: 'Human', currentLocation: 'Whispering Wilds',
     weapon: { name: 'Training Blade', icon: '⚔️', cost: 0, attack: 0, strength: 0, intelligence: 0, agility: 0, luck: 0, crit: 0 },
-    armor: { name: "Traveler's Tunic", defense: 0 }, bossDefeated: false,
+    armor: { name: "Traveler's Tunic", defense: 0 }, bossDefeated: false, bossesDefeated: [],
     killsByLocation: { 'Whispering Wilds': 0, 'Crystal Caverns': 0, 'Ancient Ruins': 0 },
     questClaims: {}, shopPurchases: []
   };
   let state = structuredClone(defaultState);
-  try { const saved = JSON.parse(localStorage.getItem('realmquest-save') || 'null'); if (saved) state = { ...state, ...saved, weapon: { ...defaultState.weapon, ...(saved.weapon || {}) }, armor: { ...defaultState.armor, ...(saved.armor || {}) }, killsByLocation: { ...defaultState.killsByLocation, ...(saved.killsByLocation || {}) }, questClaims: saved.questClaims || {}, shopPurchases: saved.shopPurchases || [] }; } catch {}
+  try { const saved = JSON.parse(localStorage.getItem('realmquest-save') || 'null'); if (saved) state = { ...state, ...saved, weapon: { ...defaultState.weapon, ...(saved.weapon || {}) }, armor: { ...defaultState.armor, ...(saved.armor || {}) }, killsByLocation: { ...defaultState.killsByLocation, ...(saved.killsByLocation || {}) }, questClaims: saved.questClaims || {}, shopPurchases: saved.shopPurchases || [], bossesDefeated: saved.bossesDefeated || [] }; } catch {}
 
   const character = (() => { try { return JSON.parse(localStorage.getItem('realmquest-character-v5') || '{}'); } catch { return {}; } })();
   const raceBonus = { Human: { vitality: 2 }, Elf: { intelligence: 3 }, Demon: { strength: 3 }, Dragonkin: { vitality: 3 }, Dwarf: { vitality: 2, strength: 1 } };
@@ -49,13 +49,45 @@
     { id: 'rank-up', name: 'Rising Hunter', icon: '⬆️', desc: 'Reach level 3.', target: 3, type: 'level', coins: 55, xp: 60 },
     { id: 'ten-kills', name: 'Monster Hunter', icon: '⚔️', desc: 'Defeat 10 creatures in any region.', target: 10, type: 'kills', coins: 100, xp: 120 },
     { id: 'drake', name: 'The Rift Drake', icon: '🐉', desc: 'Defeat Ashfang in the boss arena.', target: 1, type: 'boss', coins: 150, xp: 180 }
+
+    ,{ id: 'cavern-five', name: 'Crystal Exterminator', icon: '💎', desc: 'Defeat 5 creatures in the Crystal Caverns.', target: 5, type: 'location', location: 'Crystal Caverns', coins: 90, xp: 110 }
+    ,{ id: 'ruins-five', name: 'Echoes of the Past', icon: '🏛️', desc: 'Defeat 5 creatures in the Ancient Ruins.', target: 5, type: 'location', location: 'Ancient Ruins', coins: 110, xp: 130 }
+    ,{ id: 'twenty-kills', name: 'Veteran Hunter', icon: '🏹', desc: 'Defeat 20 creatures.', target: 20, type: 'kills', coins: 160, xp: 180 }
+    ,{ id: 'thirty-kills', name: 'Elite Hunter', icon: '🦅', desc: 'Defeat 30 creatures.', target: 30, type: 'kills', coins: 220, xp: 250 }
+    ,{ id: 'level-five', name: 'Path of Power', icon: '✨', desc: 'Reach level 5.', target: 5, type: 'level', coins: 120, xp: 150 }
+    ,{ id: 'level-ten', name: 'Legend in the Making', icon: '👑', desc: 'Reach level 10.', target: 10, type: 'level', coins: 300, xp: 350 }
   ];
+
+  // Expand the guild board into a long progression of contracts.
+  const generatedQuestThemes = [
+    ['Whispering Wilds', '🌲', 'wilds'], ['Crystal Caverns', '💎', 'crystal'], ['Ancient Ruins', '🏛️', 'ruins']
+  ];
+  for (let n = 1; n <= 42; n++) {
+    const theme = generatedQuestThemes[(n - 1) % generatedQuestThemes.length];
+    const target = 3 + Math.floor((n - 1) / 3) * 2;
+    quests.push({
+      id: `guild-contract-${n}`,
+      name: [`Outpost Patrol ${n}`, `Relic-Site Sweep ${n}`, `Hunter's Commission ${n}`][(n - 1) % 3],
+      icon: theme[1],
+      desc: `Defeat ${target} creatures in ${theme[0]}.`,
+      target, type: 'location', location: theme[0],
+      coins: 35 + n * 8, xp: 40 + n * 9
+    });
+  }
   const shop = [
     { id: 'iron-edge', name: 'Iron Edge', icon: '⚔️', cost: 35, attack: 4, strength: 1, crit: 2, rarity: 'Common', desc: '+4 ATK · +1 STR · +2% Crit' },
     { id: 'rune-staff', name: 'Runebound Staff', icon: '🔮', cost: 60, attack: 3, intelligence: 3, mana: 10, rarity: 'Rare', desc: '+3 ATK · +3 INT · +10 Max Mana' },
     { id: 'wind-daggers', name: 'Windfang Daggers', icon: '🗡️', cost: 75, attack: 5, agility: 3, crit: 8, rarity: 'Rare', desc: '+5 ATK · +3 AGI · +8% Crit' },
     { id: 'wyrm-blade', name: 'Wyrmfire Blade', icon: '🔥', cost: 120, attack: 9, strength: 4, vitality: 2, crit: 5, rarity: 'Epic', desc: '+9 ATK · +4 STR · +2 VIT · +5% Crit' },
     { id: 'astral-orb', name: 'Astral Conduit', icon: '🌌', cost: 140, attack: 7, intelligence: 5, luck: 2, mana: 20, rarity: 'Epic', desc: '+7 ATK · +5 INT · +2 LCK · +20 Max Mana' }
+
+    ,{ id: 'oakbow', name: 'Galeheart Longbow', icon: '🏹', cost: 95, attack: 6, agility: 4, crit: 5, rarity: 'Rare', desc: '+6 ATK · +4 AGI · +5% Crit' }
+    ,{ id: 'moonblade', name: 'Moonlit Saber', icon: '🌙', cost: 110, attack: 8, agility: 2, luck: 2, crit: 4, rarity: 'Epic', desc: '+8 ATK · +2 AGI · +2 LCK · +4% Crit' }
+    ,{ id: 'titanmaul', name: 'Titan Maul', icon: '🔨', cost: 125, attack: 11, strength: 5, agility: -1, rarity: 'Epic', desc: '+11 ATK · +5 STR · -1 AGI' }
+    ,{ id: 'frostbrand', name: 'Frostbrand', icon: '❄️', cost: 150, attack: 10, intelligence: 3, vitality: 2, crit: 3, rarity: 'Epic', desc: '+10 ATK · +3 INT · +2 VIT · +3% Crit' }
+    ,{ id: 'voidfang', name: 'Voidfang', icon: '🌀', cost: 190, attack: 14, agility: 4, luck: 3, crit: 8, rarity: 'Legendary', desc: '+14 ATK · +4 AGI · +3 LCK · +8% Crit' }
+    ,{ id: 'sunstaff', name: 'Sunfire Scepter', icon: '☀️', cost: 175, attack: 12, intelligence: 6, mana: 25, rarity: 'Legendary', desc: '+12 ATK · +6 INT · +25 Max Mana' }
+    ,{ id: 'riftsplitter', name: 'Rift Splitter', icon: '🌌', cost: 250, attack: 18, strength: 5, vitality: 3, crit: 6, rarity: 'Mythic', desc: '+18 ATK · +5 STR · +3 VIT · +6% Crit' }
   ];
 
   function log(message) { const p = document.createElement('p'); p.textContent = '✦ ' + message; $('log').prepend(p); }
@@ -88,9 +120,9 @@
     $('armorName').textContent = state.armor?.name || "Traveler's Tunic"; $('armorBonus').textContent = `+${state.armor?.defense || 0} DEF`;
     $('locationPill').textContent = state.currentLocation; $('locationNote').textContent = `Selected: ${state.currentLocation}`;
     $('attackBtn').disabled = !state.monster; $('powerBtn').disabled = !state.monster || state.mana < 10; $('potionBtn').disabled = state.potions < 1 || state.health === state.maxHealth;
-    $('bossBtn').disabled = state.level < 3 || state.bossDefeated || !!state.monster;
-    $('bossStatus').textContent = state.bossDefeated ? 'Defeated! The guild remembers your victory.' : state.level < 3 ? 'Reach level 3 to unlock this boss.' : 'A dangerous presence stirs beyond the ruins.';
-    $('bossBtn').textContent = state.bossDefeated ? '✓ Boss Defeated' : '⚔ Challenge Boss';
+    const upcomingBoss = nextBoss(); $('bossBtn').disabled = !upcomingBoss || state.level < upcomingBoss.level || !!state.monster || state.health <= 0;
+    $('bossName').textContent = upcomingBoss ? upcomingBoss.name : 'All bosses defeated'; $('bossStatus').textContent = !upcomingBoss ? 'Legendary victory! Every known boss has fallen.' : state.level < upcomingBoss.level ? `Reach level ${upcomingBoss.level} to unlock this boss.` : `${(state.bossesDefeated||[]).length}/10 bosses defeated. Prepare for battle.`;
+    $('bossBtn').textContent = upcomingBoss ? `⚔ Challenge ${upcomingBoss.name}` : '✓ All Bosses Defeated';
     $('evolutionTitle').textContent = state.level >= 3 ? `${state.playerClass} Awakening` : 'Unawakened Talent'; $('evolutionDesc').textContent = state.level >= 3 ? 'Your class talent has awakened and grown stronger.' : 'Reach level 3 to awaken your first talent.'; $('evolutionStatus').textContent = state.level >= 3 ? 'Unlocked' : 'Locked'; $('classEvolutionStatus').textContent = state.level >= 5 ? 'Unlocked' : 'Locked';
     const profile = (() => { try { return JSON.parse(localStorage.getItem('realmquest-avatar') || '{}'); } catch { return {}; } })();
     $('characterIdentity').textContent = `${state.race} · ${state.playerClass}`;
@@ -150,12 +182,59 @@
   $('attackBtn').addEventListener('click', () => playerAttack(false));
   $('powerBtn').addEventListener('click', () => playerAttack(true));
   $('potionBtn').addEventListener('click', () => { if (state.potions < 1 || state.health === state.maxHealth) return; state.potions--; const before = state.health; state.health = Math.min(state.maxHealth, state.health + 35); log(`You drink a potion and recover ${state.health - before} health.`); if (state.monster) enemyTurn(); render(); });
-  $('restBtn').addEventListener('click', () => { state.health = state.maxHealth; state.mana = state.maxMana; state.monster = null; $('combatBox').classList.add('hidden'); $('scene').classList.remove('hidden'); $('scene').querySelector('h3').textContent = 'A Safe Moment at Camp'; $('scene').querySelector('p').textContent = 'You rest by the guild campfire and recover your strength.'; $('locationPill').textContent = 'Guild Outpost'; log('You rest at camp and restore all health and mana.'); render(); });
+  let restTimer = null, resting = false;
+  $('restBtn').addEventListener('click', () => {
+    if (resting) return;
+    if (state.monster) { log('Finish the current battle before resting.'); return; }
+    resting = true;
+    const btn = $('restBtn'); btn.disabled = true;
+    $('combatBox').classList.add('hidden'); $('scene').classList.remove('hidden');
+    $('scene').querySelector('h3').textContent = '🏕️ Resting at Camp';
+    let countdown = document.getElementById('campCountdown');
+    if (!countdown) { countdown = document.createElement('div'); countdown.id = 'campCountdown'; countdown.className = 'camp-countdown'; $('scene').appendChild(countdown); }
+    countdown.innerHTML = '<strong>Recovering at the guild campfire</strong><div class="camp-timer"><span id="campSeconds">30</span>s</div><div class="camp-timer-track"><span id="campTimerFill"></span></div><p>Your health and mana will recover when the rest is complete.</p>';
+    $('scene').querySelector('p').textContent = 'The campfire crackles while your hero rests. Recovery begins when the countdown ends.';
+    $('locationPill').textContent = 'Guild Outpost';
+    let remaining = 30;
+    const tick = () => {
+      const sec = document.getElementById('campSeconds'), fill = document.getElementById('campTimerFill');
+      if (sec) sec.textContent = remaining;
+      if (fill) fill.style.width = `${((30 - remaining) / 30) * 100}%`;
+      if (remaining <= 0) {
+        clearInterval(restTimer); restTimer = null; resting = false;
+        state.health = state.maxHealth; state.mana = state.maxMana; state.monster = null;
+        if (countdown) countdown.innerHTML = '<strong>✨ Rest complete!</strong><p>Your health and mana are fully restored. Ready for another adventure.</p>';
+        btn.disabled = false; log('Your 30-second camp rest is complete. Health and mana restored.'); save(); render();
+        return;
+      }
+      remaining -= 1;
+    };
+    tick(); restTimer = setInterval(tick, 1000);
+    log('You returned to camp. Recovery will finish in 30 seconds.'); render();
+  });
   $('saveBtn').addEventListener('click', () => save(false));
   document.querySelectorAll('.location-option').forEach(button => button.addEventListener('click', () => { if (state.monster) { log('Finish your current battle before changing locations.'); return; } state.currentLocation = button.dataset.location; document.querySelectorAll('.location-option').forEach(b => b.classList.toggle('selected', b === button)); const area = areas[state.currentLocation]; $('scene').querySelector('h3').textContent = state.currentLocation; $('scene').querySelector('.scene-art').textContent = area.art; $('scene').querySelector('p').textContent = area.desc; $('scene').classList.remove('hidden'); $('combatBox').classList.add('hidden'); log(`You travel to ${state.currentLocation}.`); render(); save(); }));
-  $('bossBtn').addEventListener('click', () => { if (state.level < 3 || state.bossDefeated || state.monster) return; state.monster = { name: 'Ashfang, Rift Drake', emoji: '🐉', hp: 180, maxHp: 180, xp: 120, gold: 100, damage: 18, boss: true }; $('combatBox').classList.remove('hidden'); $('scene').classList.add('hidden'); $('locationPill').textContent = 'Boss Arena'; log('BOSS BATTLE! Ashfang, the Rift Drake, descends into the arena.'); render(); });
-  const oldWinFight = winFight;
-  winFight = function () { const boss = state.monster?.boss; oldWinFight(); if (boss) { state.bossDefeated = true; claimCompletedQuests(); save(); render(); } };
+  const bossRoster = [
+    { name:'Stonefang Golem', emoji:'🪨', hp:130, xp:90, gold:55, damage:13, level:3 },
+    { name:'Ashfang, Rift Drake', emoji:'🐉', hp:180, xp:120, gold:100, damage:18, level:5 },
+    { name:'Queen of the Web', emoji:'🕷️', hp:220, xp:155, gold:125, damage:20, level:7 },
+    { name:'The Hollow Knight', emoji:'🛡️', hp:280, xp:190, gold:155, damage:23, level:10 },
+    { name:'Frost Tyrant', emoji:'❄️', hp:340, xp:230, gold:190, damage:26, level:13 },
+    { name:'Abyssal Leviathan', emoji:'🐙', hp:420, xp:280, gold:230, damage:29, level:16 },
+    { name:'The Bone Sovereign', emoji:'💀', hp:500, xp:340, gold:280, damage:32, level:20 },
+    { name:'Void Reaper', emoji:'🌑', hp:620, xp:420, gold:350, damage:36, level:25 },
+    { name:'Eclipse Demon', emoji:'👹', hp:760, xp:520, gold:430, damage:41, level:30 },
+    { name:'Ancient Rift Dragon', emoji:'🐲', hp:1000, xp:700, gold:600, damage:48, level:40 }
+  ];
+  function nextBoss(){return bossRoster.find(b=>!(state.bossesDefeated||[]).includes(b.name));}
+  $('bossBtn').addEventListener('click', () => {
+    const boss=nextBoss();
+    if(!boss || state.level<boss.level || state.monster || state.health<=0) return;
+    state.monster={...boss,maxHp:boss.hp,boss:true};
+    $('combatBox').classList.remove('hidden'); $('scene').classList.add('hidden');
+    $('locationPill').textContent='Boss Arena';
+    log(`BOSS BATTLE! ${boss.name} enters the arena.`); render();
+  });
   // Wrap victory so boss flag is set before quest checks.
   const originalPlayerAttack = playerAttack;
   // Boss is marked before reward handling by checking the current monster in this hook.
